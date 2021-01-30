@@ -131,7 +131,7 @@ class Post(BaseModel):
     def get_tags(self):
         return [tag.name for tag in self.tags.order_by(Tag.name.asc())]
 
-    def set_tag(self, *args):
+    def set_tags(self, *args):
         tags = []
         for tag in args:
             if not tag:
@@ -142,7 +142,7 @@ class Post(BaseModel):
                 tag = Tag.create(name=tag)
             tags.append(tag)
         for tag in self.tags:
-            if tag.name not in tags:
+            if tag.name not in args:
                 self.tags.remove(tag)
         self.tags.add(tags)
 
@@ -236,7 +236,7 @@ def form(slug=None):
         tags = map(lambda s: s.strip(), request.form['tags'].split(','))
         try:
             post.save()
-            post.set_tag(*tags)
+            post.set_tags(*set(tags))
         except IntegrityError as exc:
             error = exc
         else:
