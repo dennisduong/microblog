@@ -1,0 +1,75 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+{% if error %}
+<div class="admonition error">
+    <p>{{ error|string }}</p>
+</div>
+{% endif %}
+<form class="pure-form pure-form-stacked" method="POST">
+    <fieldset>
+        <div class="pure-g">
+            {% if post.id != None %}
+            <div class="pure-u-1">
+                <label for="slug">Slug</label>
+                <input type="text" 
+                       name="slug"
+                       value="{{ post.slug }}"
+                       id="slug" 
+                       class="pure-input-1"
+                       readonly />
+            </div>
+            {% endif %}
+            <div class="pure-u-1">
+                <label for="title">Title</label>
+                <input type="text" 
+                       name="title"
+                       value="{{ post.title or '' }}"
+                       id="title" 
+                       class="pure-input-1"
+                       required />
+            </div>
+            <div class="pure-u-1">
+                <label for="description">Description</label>
+                <input type="text" 
+                       name="description"
+                       value="{{ post.description or '' }}"
+                       id="description" 
+                       class="pure-input-1" />
+            </div>
+            <div class="pure-u-1">
+                <label for="tags">Tags</label>
+                <input type="text" 
+                       name="tags"
+                       value="{{ ','.join(post.get_tags()) }}"
+                       id="tags" 
+                       class="pure-input-1" />
+                <span class="pure-form-message">Comma seperated without spaces.</span>
+            </div>
+            <div class="pure-u-1">
+                <label for="content">Content</label>
+                <textarea name="content"
+                          rows="20"
+                          id="content"
+                          class="pure-input-1">{{ post.content or ''|safe }}</textarea>
+                <span class="pure-form-message">Markdown.</span>
+            </div>
+        </div>
+        <label for="published" class="pure-checkbox">
+            <input type="checkbox" 
+                   name="published"
+                   id="published"
+                   {% if post.published %}checked{% endif %}> Publish
+        </label>
+        <button type="submit" class="pure-button pure-button-primary">Submit</button>
+        {% if post.id != None %}
+        <a href="{{ url_for('delete', slug=post.slug) }}" 
+           class="pure-button button-error"
+           onclick="return confirm('Are you sure you want to delete this post?');">Delete</a>
+        <a href="{{ url_for('post', slug=post.slug) }}" 
+           target="_blank"
+           class="pure-button button-secondary">{% if post.published %}View{% else %}Preview{% endif %}</a>
+        {% endif %}
+    </fieldset>
+</form>
+{% endblock %}

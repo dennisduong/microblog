@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="head">
+        <h1 class="title">{{ post.title }}</h1>
+        {{ post.description }}
+        <div class="tags">
+            {% for tag in tags %}<a href="{{ url_for('posts', tag=tag) }}" class="pure-button tag">{{ tag }}</a> {% endfor %}
+        </div>
+        <p class="date">
+            <i class="fa fa-clock-o"></i> {{ post.timestamp|string }} UTC
+        </p>
+    </div>
+    <div class="markdown">{{ post.get_html()|safe }}</div>
+{% endblock %}
