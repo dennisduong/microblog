@@ -70,7 +70,7 @@ if (
     app.config['PROXYFIX_X_PROTO'] or 
     app.config['PROXYFIX_X_HOST']
 ):
-    app.wsgi_app = ProxyFix(app, 
+    app.wsgi_app = ProxyFix(app.wsgi_app, 
                             x_for=app.config['PROXYFIX_X_FOR'], 
                             x_proto=app.config['PROXYFIX_X_PROTO'], 
                             x_host=app.config['PROXYFIX_X_HOST'])
