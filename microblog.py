@@ -132,19 +132,20 @@ class Post(BaseModel):
         return [tag.name for tag in self.tags.order_by(Tag.name.asc())]
 
     def set_tags(self, *args):
-        tags = []
-        for tag in args:
-            if not tag:
-                continue
-            try:
-                tag = Tag.get(Tag.name == tag)
-            except Tag.DoesNotExist:
-                tag = Tag.create(name=tag)
-            tags.append(tag)
-        for tag in self.tags:
-            if tag.name not in args:
-                self.tags.remove(tag)
-        self.tags.add(tags)
+        names = set(args)
+        with db.atomic():
+            for name in names:
+                if not name:
+                    continue
+                try:
+                    tag = Tag.get(Tag.name == name)
+                except Tag.DoesNotExist:
+                    tag = Tag.create(name=name)
+                try:
+                    self.tags.add(tag)
+                except IntegrityError:
+                    continue
+            self.tags.remove(Tag.select().where(Tag.name.not_in(names)))
 
     def save(self, *args, **kwargs):
         # Generate a URL-friendly representation of the entry's title.
@@ -236,7 +237,7 @@ def form(slug=None):
         tags = map(lambda s: s.strip(), request.form['tags'].split(','))
         try:
             post.save()
-            post.set_tags(*set(tags))
+            post.set_tags(*tags)
         except IntegrityError as exc:
             error = exc
         else:
